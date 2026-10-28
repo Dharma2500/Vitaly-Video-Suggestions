@@ -40,7 +40,7 @@ npx wrangler login
 npx wrangler d1 create vitaly-video-suggestions
 ~~~
 
-Команда D1 покажет database_id. Вставь его в wrangler.toml вместо REPLACE_WITH_D1_DATABASE_ID. В том же файле замени REPLACE_WITH_YOUR_TELEGRAM_ID на ID из /id.
+Команда D1 покажет database_id. Вставь его в wrangler.toml вместо REPLACE_WITH_D1_DATABASE_ID. ID из команды /id храни только в Cloudflare Secrets, не добавляй его в публичные файлы репозитория.
 
 Создай таблицы:
 
@@ -52,6 +52,7 @@ npx wrangler d1 execute vitaly-video-suggestions --remote --file=migrations/0001
 
 ~~~powershell
 npx wrangler secret put BOT_TOKEN
+npx wrangler secret put ADMIN_TELEGRAM_ID
 npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 ~~~
 
