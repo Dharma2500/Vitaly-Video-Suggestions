@@ -251,6 +251,7 @@ h2 { margin: 0; font-size: clamp(23px, 4vw, 34px); letter-spacing: -.045em; line
 .status-approved { color: var(--mint); border-color: rgba(124,231,192,.22); background: rgba(124,231,192,.07); }
 .status-rejected { color: #ff9eac; border-color: rgba(255,111,133,.22); background: rgba(255,111,133,.07); }
 .status-seen { color: #c8bbff; border-color: rgba(166,140,255,.22); background: rgba(166,140,255,.07); }
+.admin-thumb { display: block; width: min(100%, 240px); aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; margin: 3px 0 14px; background: #1c2230; }
 .admin-card-title { margin: 0 0 7px; font-size: 19px; letter-spacing: -.025em; }
 .admin-author { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
 .admin-details { margin-bottom: 17px; }
