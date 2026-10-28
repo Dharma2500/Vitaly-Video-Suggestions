@@ -5,7 +5,6 @@ workers_dev = true
 
 [vars]
 # Replace these placeholders before deploy.
-ADMIN_TELEGRAM_ID = "REPLACE_WITH_YOUR_TELEGRAM_ID"
 ALLOWED_ORIGIN = "https://dharma2500.github.io"
 PUBLIC_SITE_URL = "https://dharma2500.github.io/Vitaly-Video-Suggestions/"
 ADMIN_APP_URL = "https://dharma2500.github.io/Vitaly-Video-Suggestions/admin.html"
