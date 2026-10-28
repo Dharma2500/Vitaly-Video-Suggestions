@@ -127,6 +127,22 @@
     top.appendChild(date);
     card.appendChild(top);
 
+    if (item.thumbnail_url) {
+      try {
+        const previewUrl = new URL(item.thumbnail_url);
+        if (previewUrl.protocol === "https:" && previewUrl.hostname === "i.ytimg.com") {
+          const preview = document.createElement("img");
+          preview.className = "admin-thumb";
+          preview.src = previewUrl.href;
+          preview.alt = "Превью видео";
+          preview.loading = "lazy";
+          preview.referrerPolicy = "no-referrer";
+          preview.addEventListener("error", function () { preview.remove(); }, { once: true });
+          card.appendChild(preview);
+        }
+      } catch (_) {}
+    }
+
     const title = document.createElement("h3");
     title.className = "admin-card-title";
     title.textContent = String(item.title || "Без названия");
