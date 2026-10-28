@@ -35,7 +35,7 @@ Telegram-бот **@vs_predlog_bot** и сайт для предложений з
 Установи Node.js LTS, скачай репозиторий и открой терминал в папке проекта:
 
 ~~~powershell
-npm install --save-dev wrangler
+npm install
 npx wrangler login
 npx wrangler d1 create vitaly-video-suggestions
 ~~~
@@ -58,9 +58,10 @@ npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 
 TELEGRAM_WEBHOOK_SECRET должен быть случайной строкой из латинских букв и цифр длиной 32-64 символа. Сохрани её локально: та же строка понадобится при регистрации webhook.
 
-Опубликуй Worker:
+Перед публикацией запусти автоматические проверки разбора заявок, затем опубликуй Worker:
 
 ~~~powershell
+npm test
 npx wrangler deploy
 ~~~
 
