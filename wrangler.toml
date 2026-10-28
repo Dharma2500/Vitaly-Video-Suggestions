@@ -1,0 +1,16 @@
+name = "vitaly-video-suggestions-api"
+main = "src/index.js"
+compatibility_date = "2026-10-28"
+workers_dev = true
+
+[vars]
+# Replace these placeholders before deploy.
+ADMIN_TELEGRAM_ID = "REPLACE_WITH_YOUR_TELEGRAM_ID"
+ALLOWED_ORIGIN = "https://dharma2500.github.io"
+PUBLIC_SITE_URL = "https://dharma2500.github.io/Vitaly-Video-Suggestions/"
+ADMIN_APP_URL = "https://dharma2500.github.io/Vitaly-Video-Suggestions/admin.html"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vitaly-video-suggestions"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
