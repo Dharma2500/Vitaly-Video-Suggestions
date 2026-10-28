@@ -1,0 +1,13 @@
+{
+  "name": "vitaly-video-suggestions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:setup": "wrangler d1 execute vitaly-video-suggestions --remote --file=migrations/0001_init.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
