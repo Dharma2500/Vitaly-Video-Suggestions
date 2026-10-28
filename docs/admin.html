@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131b">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://telegram.org; style-src 'self'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Модерация | Vitaly</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./config.js" defer></script>
+  <script src="./admin.js" defer></script>
+</head>
+<body class="admin-body">
+  <header class="site-header">
+    <a class="brand" href="./">
+      <span class="brand-mark">VS</span>
+      <span><strong>VITALY</strong><small>ПАНЕЛЬ МОДЕРАЦИИ</small></span>
+    </a>
+    <a class="button button-secondary" href="./">Публичная страница</a>
+  </header>
+
+  <main class="container admin-container">
+    <section class="admin-hero">
+      <p class="eyebrow">ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА</p>
+      <h1>Очередь <span>модерации</span></h1>
+      <p class="hero-copy">Авторизация проверяется на сервере по подписи Telegram. Если видишь это в обычном браузере, открой бота и отправь /admin.</p>
+    </section>
+
+    <div id="admin-auth-status" class="status-line" role="status">Проверяю доступ…</div>
+
+    <div id="admin-panel" hidden>
+      <section class="admin-tools panel">
+        <div class="section-heading compact-heading">
+          <div><p class="eyebrow">УПРАВЛЕНИЕ</p><h2>Поиск и блокировки</h2></div>
+        </div>
+        <label class="field-label" for="admin-search">Найти заявку или автора</label>
+        <input id="admin-search" class="text-input" type="search" placeholder="Название, @ник или числовой Telegram ID">
+        <form id="ban-form" class="ban-form">
+          <div class="form-copy">
+            <strong>Забанить пользователя</strong>
+            <span>Вводи числовой Telegram ID, а не имя. Все его предложения будут удалены.</span>
+          </div>
+          <label class="visually-hidden" for="ban-id">Telegram ID пользователя</label>
+          <input id="ban-id" class="text-input id-input" type="text" inputmode="numeric" autocomplete="off" maxlength="20" pattern="[0-9]{1,20}" placeholder="Telegram ID" required>
+          <label class="visually-hidden" for="ban-reason">Причина бана</label>
+          <input id="ban-reason" class="text-input reason-input" type="text" maxlength="250" placeholder="Причина (необязательно)">
+          <button class="button button-danger" type="submit">Забанить</button>
+        </form>
+        <p id="admin-action-status" class="status-line small-status" role="status"></p>
+      </section>
+
+      <section class="list-section">
+        <div class="section-heading">
+          <div><p class="eyebrow">ЗАЯВКИ</p><h2>Все предложения</h2></div>
+          <span class="count-pill" id="admin-count">0 заявок</span>
+        </div>
+        <div class="admin-list" id="admin-suggestions"></div>
+        <div class="empty-state" id="admin-empty" hidden>
+          <div class="empty-icon" aria-hidden="true">✓</div>
+          <h3>Очередь чиста</h3>
+          <p>Новых предложений пока нет.</p>
+        </div>
+      </section>
+
+      <section class="list-section bans-section">
+        <div class="section-heading">
+          <div><p class="eyebrow">ЗАЩИТА</p><h2>Список банов</h2></div>
+          <button class="button button-secondary button-small" type="button" id="refresh-bans">Обновить</button>
+        </div>
+        <div id="admin-bans" class="bans-list"></div>
+        <p id="bans-empty" class="muted" hidden>Банов пока нет.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <span>Админ-действия записываются в журнал.</span>
+    <a href="https://t.me/vs_predlog_bot" target="_blank" rel="noopener noreferrer">@vs_predlog_bot ↗</a>
+  </footer>
+</body>
+</html>
