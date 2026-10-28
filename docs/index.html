@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131b">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Предложения зрителей | Vitaly</title>
+  <meta name="description" content="Очередь видео и фильмов, которые зрители предлагают Виталию.">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./config.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Vitaly, главная">
+      <span class="brand-mark">VS</span>
+      <span><strong>VITALY</strong><small>ПРЕДЛОЖЕНИЯ ЗРИТЕЛЕЙ</small></span>
+    </a>
+    <a class="button button-primary" href="https://t.me/vs_predlog_bot" target="_blank" rel="noopener noreferrer">Предложить видео</a>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">ТВОЯ ИДЕЯ МОЖЕТ ПОПАСТЬ НА СТРИМ</p>
+      <h1>Что смотрим <span>дальше?</span></h1>
+      <p class="hero-copy">Предлагай ролики, фильмы и другие находки через Telegram-бота. После проверки заявка появится здесь.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="https://t.me/vs_predlog_bot" target="_blank" rel="noopener noreferrer">Открыть @vs_predlog_bot</a>
+        <button class="button button-secondary" id="refresh-button" type="button">Обновить список</button>
+      </div>
+    </section>
+
+    <section class="list-section" aria-labelledby="list-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ПУБЛИЧНАЯ ОЧЕРЕДЬ</p>
+          <h2 id="list-title">Одобренные предложения</h2>
+        </div>
+        <span class="count-pill" id="suggestion-count">0 заявок</span>
+      </div>
+      <p class="status-line" id="public-status" role="status">Загружаю список…</p>
+      <div class="suggestion-grid" id="public-suggestions" aria-live="polite"></div>
+      <div class="empty-state" id="public-empty" hidden>
+        <div class="empty-icon" aria-hidden="true">✦</div>
+        <h3>Пока здесь тихо</h3>
+        <p>Предложи первым интересный ролик или фильм через Telegram.</p>
+        <a href="https://t.me/vs_predlog_bot" target="_blank" rel="noopener noreferrer">Отправить предложение ↗</a>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <h2>Как это работает</h2>
+      <div class="steps">
+        <article><span>01</span><h3>Отправь идею</h3><p>Название фильма или ссылку на поддерживаемый сервис.</p></article>
+        <article><span>02</span><h3>Дождись проверки</h3><p>Новая заявка сначала проходит модерацию.</p></article>
+        <article><span>03</span><h3>Смотри очередь</h3><p>Одобренные предложения появляются на этой странице.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Vitaly · зрители решают, что смотреть</span>
+    <a href="https://www.youtube.com/@Vitaly_SokolovYT" target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+  </footer>
+</body>
+</html>
