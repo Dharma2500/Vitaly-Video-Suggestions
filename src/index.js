@@ -110,7 +110,8 @@ async function handleWebhook(request, env) {
     return json({ error: "Service not configured" }, 503, request, env);
   }
 
-  const update = await request.json();
+  const update = await readLimitedJson(request, 131072);
+  if (!update) return json({ error: "Invalid or oversized JSON" }, 400, request, env);
   await processTelegramUpdate(update, env);
   return json({ ok: true }, 200, request, env);
 }
@@ -148,7 +149,7 @@ async function processTelegramUpdate(update, env) {
   const userId = String(message.from.id);
   const text = typeof message.text === "string" ? message.text.trim() : "";
 
-  if (text === "/id" || text === "/myid" || text.startsWith("/id@")) {
+  if (/^\/(?:id|myid)(?:@\w+)?(?:\s|$)/i.test(text)) {
     await telegramSend(env, message.chat.id, "Твой Telegram ID: " + userId);
     return;
   }
@@ -502,7 +503,7 @@ async function handleAdminApi(request, url, env, adminId) {
   }
 
   if (path === "/api/admin/users/ban" && request.method === "POST") {
-    const body = await readSmallJson(request);
+    const body = await readLimitedJson(request, 4096);
     if (!body) return json({ error: "Invalid JSON body" }, 400, request, env);
     const targetId = String(body.telegram_id || "").trim();
     if (!/^\d{1,20}$/.test(targetId)) {
@@ -515,7 +516,7 @@ async function handleAdminApi(request, url, env, adminId) {
   }
 
   if (path === "/api/admin/users/unban" && request.method === "POST") {
-    const body = await readSmallJson(request);
+    const body = await readLimitedJson(request, 4096);
     if (!body) return json({ error: "Invalid JSON body" }, 400, request, env);
     const targetId = String(body.telegram_id || "").trim();
     if (!/^\d{1,20}$/.test(targetId)) {
@@ -526,7 +527,7 @@ async function handleAdminApi(request, url, env, adminId) {
   }
 
   if (path === "/api/admin/suggestions/status" && request.method === "POST") {
-    const body = await readSmallJson(request);
+    const body = await readLimitedJson(request, 4096);
     if (!body) return json({ error: "Invalid JSON body" }, 400, request, env);
     const id = String(body.id || "");
     const status = String(body.status || "");
@@ -565,11 +566,30 @@ async function handleAdminApi(request, url, env, adminId) {
   return json({ error: "Not found" }, 404, request, env);
 }
 
-async function readSmallJson(request) {
+async function readLimitedJson(request, maxBytes) {
   const sizeHeader = Number(request.headers.get("Content-Length") || 0);
-  if (sizeHeader > 4096) return null;
+  if (sizeHeader > maxBytes || !request.body) return null;
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
   try {
-    const body = await request.json();
+    while (true) {
+      const part = await reader.read();
+      if (part.done) break;
+      total += part.value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(part.value);
+    }
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    const body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
     if (!body || typeof body !== "object" || Array.isArray(body)) return null;
     return body;
   } catch (_) {
