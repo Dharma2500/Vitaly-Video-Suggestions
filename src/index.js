@@ -646,3 +646,5 @@ async function unbanUser(env, adminId, targetId) {
   ]);
   return { ok: true, message: "ID " + targetId + " разблокирован." };
 }
+
+export { parseSuggestion };
