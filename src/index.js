@@ -112,7 +112,34 @@ async function handleWebhook(request, env) {
 
   const update = await readLimitedJson(request, 131072);
   if (!update) return json({ error: "Invalid or oversized JSON" }, 400, request, env);
-  await processTelegramUpdate(update, env);
+
+  // Telegram retries webhook updates if a response is lost. Claim update_id
+  // atomically so a replay cannot insert the same suggestion twice.
+  if (Number.isSafeInteger(update.update_id) && update.update_id >= 0) {
+    const now = Math.floor(Date.now() / 1000);
+    const claimed = await env.DB.prepare(
+      "INSERT OR IGNORE INTO processed_updates (update_id, processed_at) VALUES (?1, ?2) RETURNING update_id"
+    ).bind(update.update_id, now).first();
+
+    if (!claimed) {
+      return json({ ok: true, duplicate: true }, 200, request, env);
+    }
+
+    try {
+      await processTelegramUpdate(update, env);
+    } catch (error) {
+      // Let Telegram retry if processing failed before completion.
+      await env.DB.prepare("DELETE FROM processed_updates WHERE update_id = ?1")
+        .bind(update.update_id).run();
+      throw error;
+    }
+
+    // Keep a bounded deduplication window rather than retaining every update forever.
+    await env.DB.prepare("DELETE FROM processed_updates WHERE processed_at < ?1")
+      .bind(now - 7 * 24 * 60 * 60).run();
+  } else {
+    await processTelegramUpdate(update, env);
+  }
   return json({ ok: true }, 200, request, env);
 }
 
