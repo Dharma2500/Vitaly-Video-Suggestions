@@ -54,3 +54,12 @@ CREATE TABLE IF NOT EXISTS admin_audit (
 
 CREATE INDEX IF NOT EXISTS idx_admin_audit_created
     ON admin_audit(created_at DESC);
+
+-- Dedupe Telegram webhook retries so the same update cannot create duplicate suggestions.
+CREATE TABLE IF NOT EXISTS processed_updates (
+    update_id INTEGER PRIMARY KEY,
+    processed_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_processed_updates_at
+    ON processed_updates(processed_at);
