@@ -60,19 +60,13 @@ npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 
 ### 2. Подключить Telegram к Worker и узнать свой ID
 
-В PowerShell выполни команды. Токен и webhook-секрет вводятся только в локальные приглашения терминала:
+Запусти готовый PowerShell-скрипт из корня репозитория:
 
 ~~~powershell
-$botToken = Read-Host "Вставь токен бота локально"
-$webhookSecret = Read-Host "Вставь тот же TELEGRAM_WEBHOOK_SECRET"
-$worker = Read-Host "Полный адрес Worker, например https://имя.аккаунт.workers.dev"
-$body = @{
-  url = "$worker/telegram/webhook"
-  secret_token = $webhookSecret
-} | ConvertTo-Json
-Invoke-RestMethod -Method Post -Uri "https://api.telegram.org/bot$botToken/setWebhook" -ContentType "application/json" -Body $body
-Remove-Variable botToken, webhookSecret
+powershell -ExecutionPolicy Bypass -File .\scripts\set-webhook.ps1
 ~~~
+
+Он попросит Worker URL, а токен бота и webhook-секрет введёт через скрытый ввод. Скрипт не выводит их в консоль и при ошибке не печатает технический ответ Telegram, в котором может оказаться адрес API с токеном. Не запускай первоначальную настройку во время трансляции рабочего стола.
 
 Если Telegram вернул `ok = True`, открой **@vs_predlog_bot** и отправь `/id`. Бот сообщит твой числовой Telegram ID. Сохрани его и введи в Cloudflare Secret:
 
@@ -102,4 +96,4 @@ npx wrangler secret put ADMIN_TELEGRAM_ID
 
 ## Ограничения и приватность
 
-Публичная страница показывает только одобренные и просмотренные заявки. Баны очищают предложения из базы приложения, но не могут удалить то, что уже было скопировано или переслано Telegram вне этой системы. Таблица банов намеренно хранит ID, пока бан действует. Секреты и ID администратора не должны попадать в клиентский JavaScript; ID администратора Worker читает только из конфигурации.
+Публичная страница показывает только одобренные и просмотренные заявки. Баны очищают предложения из базы приложения, но не могут удалить то, что уже было скопировано или переслано Telegram вне этой системы. Таблица банов намеренно хранит ID, пока бан действует. Секреты и ID администратора не должны попадать в клиентский JavaScript; ID администратора Worker читает только из Cloudflare Secret `ADMIN_TELEGRAM_ID`.
