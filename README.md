@@ -26,13 +26,9 @@ Telegram-бот **@vs_predlog_bot** и сайт для предложений з
 
 ## Настройка с нуля
 
-### 1. Получить Telegram ID администратора
+### 1. Подготовить Cloudflare Worker и базу D1
 
-Напиши боту @vs_predlog_bot команду /id. Он ответит твоим числовым Telegram ID. Ник и имя для администрирования не используются.
-
-### 2. Подготовить Cloudflare Worker и D1
-
-Установи Node.js LTS, скачай репозиторий и открой терминал в папке проекта:
+Установи Node.js LTS, скачай репозиторий и открой терминал в его папке:
 
 ~~~powershell
 npm install
@@ -40,41 +36,31 @@ npx wrangler login
 npx wrangler d1 create vitaly-video-suggestions
 ~~~
 
-Команда D1 покажет database_id. Вставь его в wrangler.toml вместо REPLACE_WITH_D1_DATABASE_ID. ID из команды /id храни только в Cloudflare Secrets, не добавляй его в публичные файлы репозитория.
+Команда D1 покажет database_id. Вставь его в wrangler.toml вместо REPLACE_WITH_D1_DATABASE_ID. Не вставляй Telegram ID, токен бота или webhook-секрет в файлы репозитория.
 
-Создай таблицы:
+Создай таблицы и выполни первый деплой Worker:
 
 ~~~powershell
 npx wrangler d1 execute vitaly-video-suggestions --remote --file=migrations/0001_init.sql
-~~~
-
-Добавь секреты командами. Каждый секрет вводится в приглашении терминала, не в исходный код:
-
-~~~powershell
-npx wrangler secret put BOT_TOKEN
-npx wrangler secret put ADMIN_TELEGRAM_ID
-npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
-~~~
-
-TELEGRAM_WEBHOOK_SECRET должен быть случайной строкой из латинских букв и цифр длиной 32-64 символа. Сохрани её локально: та же строка понадобится при регистрации webhook.
-
-Перед публикацией запусти автоматические проверки разбора заявок, затем опубликуй Worker:
-
-~~~powershell
-npm test
 npx wrangler deploy
 ~~~
 
-Скопируй выданный адрес вида https://vitaly-video-suggestions-api.ТВОЙ-АККАУНТ.workers.dev.
+После первого деплоя скопируй адрес Worker вида https://vitaly-video-suggestions-api.ТВОЙ-АККАУНТ.workers.dev. До добавления секретов webhook ещё не будет готов к работе.
 
-### 3. Настроить сайт и webhook
+Теперь добавь секреты командами. Терминал попросит ввести каждое значение:
 
-1. В docs/config.js укажи адрес своего Worker в API_BASE.
-2. В wrangler.toml проверь PUBLIC_SITE_URL, ADMIN_APP_URL и ALLOWED_ORIGIN. Origin для GitHub Pages должен быть https://dharma2500.github.io без пути.
-3. В GitHub открой **Settings → Pages** и выбери публикацию из ветки main, папка /docs.
-4. Зарегистрируй Telegram webhook, заменив адрес Worker и значения локальными значениями токена/секрета. Не сохраняй эту команду с реальным токеном в репозитории или скриншотах.
+~~~powershell
+npx wrangler secret put BOT_TOKEN
+npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
+~~~
 
-Пример для PowerShell:
+- **BOT_TOKEN**: токен из BotFather. Не показывай его в чате, не добавляй в файлы и не публикуй скриншоты с ним.
+- **TELEGRAM_WEBHOOK_SECRET**: случайная строка из латинских букв, цифр, дефиса и подчёркивания длиной 32-64 символа. Сохрани её локально, она понадобится для регистрации webhook.
+- **ADMIN_TELEGRAM_ID** пока не задавай. Получим его через команду /id после запуска webhook. Иначе возникнет замкнутый круг: бот ещё не работает, а ID нужен для настройки бота.
+
+### 2. Подключить Telegram к Worker и узнать свой ID
+
+В PowerShell выполни команды. Токен и webhook-секрет вводятся только в локальные приглашения терминала:
 
 ~~~powershell
 $botToken = Read-Host "Вставь токен бота локально"
@@ -88,7 +74,23 @@ Invoke-RestMethod -Method Post -Uri "https://api.telegram.org/bot$botToken/setWe
 Remove-Variable botToken, webhookSecret
 ~~~
 
-Затем отправь боту /start, потом /admin. Команда /admin доступна только ID, указанному в ADMIN_TELEGRAM_ID. Кнопка откроет админ-панель внутри Telegram. Домен Web App при необходимости нужно привязать к боту через настройки @BotFather.
+Если Telegram вернул `ok = True`, открой **@vs_predlog_bot** и отправь `/id`. Бот сообщит твой числовой Telegram ID. Сохрани его и введи в Cloudflare Secret:
+
+~~~powershell
+npx wrangler secret put ADMIN_TELEGRAM_ID
+~~~
+
+После этого при необходимости выполни `npx wrangler deploy`. Теперь сервер будет проверять именно этот ID. Ник и имя для администрирования не используются.
+
+### 3. Опубликовать сайт и открыть админ-панель
+
+1. Замени адрес в `docs/config.js` на адрес Worker из первого шага. Меняется только значение `apiBase`. Не добавляй в этот файл секреты или Telegram ID.
+2. На GitHub открой **Settings → Pages** и включи публикацию из ветки `main`, папка `/docs`.
+3. Убедись, что страница открывается по адресу `https://dharma2500.github.io/Vitaly-Video-Suggestions/`.
+4. В BotFather настрой запуск Web App для своего бота и укажи HTTPS-адрес админ-панели: `https://dharma2500.github.io/Vitaly-Video-Suggestions/admin.html`. Названия меню BotFather могут отличаться, в зависимости от типа Mini App.
+5. Отправь боту `/start`, а затем `/admin`. Кнопка откроет админ-панель внутри Telegram. Если открыть `admin.html` обычной вкладкой браузера, сервер не выдаст доступ к модерации.
+
+Перед публичным запуском проверь приложение: `npm test`. После изменения серверного кода выполняй `npx wrangler deploy`.
 
 ## Возможности админ-панели
 
